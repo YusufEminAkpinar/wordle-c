@@ -56,12 +56,12 @@ int main(int argc, char *argv[])
 			{
 				if ((guess[i] == goalWord[j]) && (i==j))
 				{
-					// printf("Letter %c is in correct place.\n", guess[i]);
+					printf("Letter %c is in correct place.\n", guess[i]);
 					last_state_word[i] = guess[i];
 				}
 				else if (guess[i] == goalWord[j])
 				{
-					// printf("Letter %c is exist but in wrong place.\n", guess[i]);
+					printf("Letter %c is exist but in wrong place.\n", guess[i]);
 					wrong_placed_letters[index] = guess[i];
 					index++;
 				}
@@ -69,10 +69,9 @@ int main(int argc, char *argv[])
 		}
         free(guess);
 		chances--;
-		// printf("\n\nThe last state of the word is:\t\t\tLetters that in wrong places:\n");
-		// printf(" \t%s\t\t\t\t\t\t%s\n", last_state_word, wrong_placed_letters);
-		// printf("\nYou have %d chances left.\n%s\n\n", chances, fifty_under);
-		printf("You have %d chances left.\n", chances);
+		printf("\n\nThe last state of the word is:\t\t\tLetters that in wrong places:\n");
+		printf(" \t%s\t\t\t\t\t\t%s\n", last_state_word, wrong_placed_letters);
+		printf("\nYou have %d chances left.\n%s\n\n", chances, fifty_under);
 	}
 	return 0;
 }
