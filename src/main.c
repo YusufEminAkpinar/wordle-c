@@ -29,88 +29,24 @@ DONE
 */
 
 /* Function Declarations */
-void toLowerCase();
-char *removeDuplicate();
-bool checkDupe();
-bool isEqual();
-void randomword();
-void chooseOwnWord();
-void introScreen();
-void mainGame();
-char *colorfulChar();
+void toLowerCase(char string[]);
+char *removeDuplicate(char word[]);
+bool checkDupe(char word[]);
+bool isEqual(char word1[], char word2[]);
+void randomword(void);
+char *chooseOwnWord(void);
+void introScreen(void);
+void mainGame(void);
+char *colorfulChar(char color[], char known_char[], int point);
 
 /* Variable Declarations */
 int chances = 6;
 
-
-
-
-
-int main(int argc, char *argv[])
-{
-	char *goalWord = malloc(sizeof(char) * max_char);
-	char *temp = malloc(sizeof(char) * max_char);
-	printf("Please enter the goal word: ");
-	scanf("%s", temp);
-	system("clear");
-	printf("The word has been choosed by thy almighty user.\n");
-	strncpy(goalWord, temp, max_char);
-	free(temp);
-	toLowerCase(goalWord);
-
-
-
-	char *guess = malloc(sizeof(char) * max_char);
-	while (true){
-		if (chances == 0)
-		{
-			printf("\nYou lost. The word was: %s\n", goalWord);
-			break;
-		}
-		
-		RESET:printf("Please enter your guess: ");
-		scanf("%s", guess);
-		if (strlen(guess) != max_char)
-		{
-			printf("\nPlease enter 5 character world\n");
-			goto RESET;
-		}
-		toLowerCase(guess);
-	    // char *guess = removeDuplicate(guess);
-
-		if (isEqual(guess, goalWord)) 
-		{
-			printf("Congratulations. You've won.\n");
-			break;
-		}
-		for (int i = 0; i < max_char; ++i) //kevel
-		{
-			for (int j = 0; j < max_char; ++j) //kevla
-			{
-				if ((guess[j] == goalWord[i]) && (i==j)) 
-				{
-					// printf("Letter %c is in correct place.\n", guess[i]);
-					guess = colorfulChar(green, guess, i);
-				}
-				else if (guess[j] == goalWord[i]) 
-				{
-					// printf("Letter %c is exist but in wrong place.\n", guess[i]);
-					guess = colorfulChar(pink, guess, j);
-				}
-			}
-		}
-		chances--;
-		printf("%s\nThe last state of the word is:\n", fifty_under);
-		printf(" \t%s\t\t\t\tYou have %d chances left.\n%s\n", guess, chances, fifty_under);
+int main(void) {
+    introScreen();
+	mainGame();
+    return 0;
 }
-
-	return 0;
-}
-
-
-
-
-
 
 
 bool isEqual(char word1[], char word2[]){
@@ -177,7 +113,7 @@ char *removeDuplicate(char word[]){
     return new_word;
 }
 
-void randomWord(){
+void randomWord(void){
 
 }
 
@@ -208,19 +144,25 @@ char *colorfulChar(char color[], char known_char[], int point){
 }
 
 
-void chooseOwnWord(){
+char *chooseOwnWord(void){
 	char *goalWord = malloc(sizeof(char) * max_char);
 	char *temp = malloc(sizeof(char) * max_char);
-	printf("Please enter the goal word: ");
+    RESET:printf("Please enter your guess: \n");
 	scanf("%s", temp);
+	if (strlen(temp) != max_char)
+	{
+		printf("\nPlease enter 5 character world\n");
+		goto RESET;
+	}
 	system("clear");
 	printf("The word has been choosed by thy almighty user.\n");
 	strncpy(goalWord, temp, max_char);
 	free(temp);
 	toLowerCase(goalWord);
+	return goalWord;
 }
 
-void introScreen(){
+void introScreen(void){
 	system("clear");
 	// printf(clear);
 	printf(" %s\n|\t\t\t\t\t\t   |\n|\t    Welcome to the Wordle game.\t\t   |\n|\t\t\t\t\t\t   |\n %s\n", fifty_under, fifty_under);
@@ -232,7 +174,7 @@ void introScreen(){
 	case 1: printf("Okay then choose a 5 letter word\n");
 		chooseOwnWord();
 		break;
-	case 2: printf("Computer choose a word for you\n");
+	case 2: printf("Computer will choose a word for you\n");
 		randomWord();
 		break;
 	case 3: printf("There is a secret word which contains exacly 5 characters. You have 6 chances for match the secret word. If you can match the exact spot for a character, it will turn to green. And it will turn to yellow if you can't. That's all about this game. Now please choose a option to start a game. \n\n\n");
@@ -244,15 +186,8 @@ void introScreen(){
 }
 
 
-void startScreen(){
-	system("clear");
-	// printf(clear);
-	
-}
-
-
-void mainGame(){
-	char *goalWord = malloc(sizeof(char) * max_char);
+void mainGame(void){
+	char *goalWord = chooseOwnWord();
 	char *tmp = malloc(sizeof(char) * max_char);
 	char *guess_input = malloc(sizeof(char) * max_char);
 	while (chances != 0){
@@ -268,8 +203,8 @@ void mainGame(){
 		toLowerCase(guess_input);
 	    char *guess = removeDuplicate(guess_input);
 
-		printf("GoalWord is: %s\n", goalWord);
-		if (isEqual(guess_input, goalWord)) 
+		/* printf("GoalWord is: %s\n", goalWord); */
+		if (isEqual(guess_input, goalWord))
 		{
 			printf("Congratulations. You've won.\n");
 			break;
@@ -280,22 +215,20 @@ void mainGame(){
 			{
 				if ((guess[i] == goalWord[j]) && (i==j))
 				{
-					printf("Letter %c is in correct place.\n", guess[i]);
-					// guess = colorfulChar(green, guess, i);
+					/* printf("Letter %c is in correct place.\n", guess[i]); */
+					guess = colorfulChar(green, guess, i);
 				}
 				else if (guess[i] == goalWord[j])
 				{
-					printf("Letter %c is exist but in wrong place.\n", guess[i]);
-					// guess = colorfulChar(pink, guess, i);
+					/* printf("Letter %c is exist but in wrong place.\n", guess[i]); */
+					guess = colorfulChar(pink, guess, i);
 				}
 			}
 		}
-        // free(guess);
+        free(guess);
 		chances--;
 		printf("\n\nThe last state of the word is:\n");
 		printf(" \t%s\t\t\t\tYou have %d chances left.\n", guess, chances);
 		// printf("\n\n%s\n\n", chances, fifty_under);
 }
-
 }
-
