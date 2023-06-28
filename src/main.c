@@ -26,6 +26,8 @@ DONE
 3) Can't win the game. Make it possible.
 
 4) Put some colors in it and give it a better look.
+
+5)Find a way for strings that contains same character twice.
 */
 
 /* Function Declarations */
@@ -38,17 +40,46 @@ char *chooseOwnWord(void);
 void introScreen(void);
 void mainGame(void);
 char *colorfulChar(char color[], char known_char[], int point);
+int *arr_of_correct_places(char word1[], char word2[]);
+bool isPresent(int num, int *arr, int arrSize);
+int num_of_occur(char c, char word[]);
+
 
 /* Variable Declarations */
 int chances = 6;
 
 int main(void) {
     introScreen();
-	mainGame();
+	  mainGame();
     return 0;
 }
 
 
+int num_of_occur(char c, char word[]){
+	int k = 0;
+	for (size_t i = 0; i<strlen(word); i++) {
+		if (c == word[i]) {
+			k++;
+		}
+	}
+	return k;
+}
+
+
+int *arr_of_correct_places(char word1[], char word2[]){
+	int *arr = malloc(sizeof(int)*5);
+	int k = 0;
+	for (size_t i = 0; i<strlen(word1); i++) {
+		if (word1[i] == word2[i]) {
+			arr[k+1] = i;
+			k++;
+		}
+	}
+	arr[0] = k; // first byte is the number of non-empty elements. like size of an array.
+	return arr;
+}
+
+// why didn't i use strcmp()??
 bool isEqual(char word1[], char word2[]){
 	int sizew1 = strlen(word1);
 	int sizew2 = strlen(word2);
@@ -62,7 +93,7 @@ bool isEqual(char word1[], char word2[]){
 	
 	for (int i = 0; word2[i] != '\0'; i++)
 	{
-		if (word2[i] != word1[i])
+	if (word2[i] != word1[i])
 			return false;
 	}
 	return true;
@@ -96,8 +127,7 @@ char *removeDuplicate(char word[]){
 	strcpy(new_word, word);
 	while (!checkDupe(new_word)) /* Continue to run until no more duplicate */
 	{
-		for (int i = 0; i < new_word[i] != '\0'; i++)
-		{
+		for (int i = 0; i < new_word[i] != '\0'; i++) {
 			for (int j = i+1; new_word[j] != '\0'; j++)
 			{
 				if (new_word[i] == new_word[j])
@@ -172,10 +202,12 @@ void introScreen(void){
 	switch (option)
 	{
 	case 1: printf("Okay then choose a 5 letter word\n");
-		chooseOwnWord();
+		/* chooseOwnWord(); */
+		;
 		break;
 	case 2: printf("Computer will choose a word for you\n");
-		randomWord();
+		/* randomWord(); */
+		;
 		break;
 	case 3: printf("There is a secret word which contains exacly 5 characters. You have 6 chances for match the secret word. If you can match the exact spot for a character, it will turn to green. And it will turn to yellow if you can't. That's all about this game. Now please choose a option to start a game. \n\n\n");
 		goto CHOOSE;
@@ -185,12 +217,25 @@ void introScreen(void){
 	}
 }
 
+bool isPresent(int num, int *arr, int arrSize){
+	for (int i = 1; i<arrSize; i++) {
+		if (num == arr[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 void mainGame(void){
 	char *goalWord = chooseOwnWord();
 	char *tmp = malloc(sizeof(char) * max_char);
 	char *guess_input = malloc(sizeof(char) * max_char);
+	char *last_state = malloc(sizeof(char) * max_char);
 	while (chances != 0){
+		for (int i = 0; i<max_char; i++) {
+			last_state[i] = '_';
+		}
 		RESET:printf("Please enter your guess: \n");
 		scanf("%s", tmp);
 		if (strlen(tmp) != max_char)
@@ -201,7 +246,8 @@ void mainGame(void){
 		strncpy(guess_input, tmp, max_char);
 		free(tmp);
 		toLowerCase(guess_input);
-	    char *guess = removeDuplicate(guess_input);
+	    /* char *guess = removeDuplicate(guess_input); */
+		char *guess = guess_input;
 
 		/* printf("GoalWord is: %s\n", goalWord); */
 		if (isEqual(guess_input, goalWord))
@@ -209,26 +255,35 @@ void mainGame(void){
 			printf("Congratulations. You've won.\n");
 			break;
 		}
+		int *arr = arr_of_correct_places(guess, goalWord);
+		/* for (int i = 0; i<1+arr[0]; i++) { */
+		/* 	printf("Arr of corr place : %d\n", arr[i]); */
+		/* } */
 		for (int i = 0; i < max_char; ++i)
 		{
 			for (int j = 0; j < max_char; ++j)
 			{
 				if ((guess[i] == goalWord[j]) && (i==j))
+				/* if (isPresent(i, arr, arr[0])) */
 				{
 					/* printf("Letter %c is in correct place.\n", guess[i]); */
-					guess = colorfulChar(green, guess, i);
+					last_state[i] = (char)(guess[i] - 32);
+					/* guess = colorfulChar(green, guess, i); */
 				}
-				else if (guess[i] == goalWord[j])
+				else if (guess[i] == goalWord[j] && !(isPresent(j, arr, arr[0])) &&
+						 !(num_of_occur(guess[i], guess) - num_of_occur(guess[i], goalWord) > 0))
 				{
 					/* printf("Letter %c is exist but in wrong place.\n", guess[i]); */
-					guess = colorfulChar(pink, guess, i);
+					last_state[i] = guess[i];
+					/* guess = colorfulChar(pink, guess, i); */
 				}
 			}
 		}
-        free(guess);
 		chances--;
+		free(arr);
 		printf("\n\nThe last state of the word is:\n");
-		printf(" \t%s\t\t\t\tYou have %d chances left.\n", guess, chances);
+		printf(" \t%s\t\t\t\tYou have %d chances left.\n", last_state, chances);
+		free(last_state);
 		// printf("\n\n%s\n\n", chances, fifty_under);
 }
 }
